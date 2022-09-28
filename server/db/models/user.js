@@ -11,7 +11,6 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      console.log({ t: this, models })
       this.hasOne(models.Statistic, {
         type: DataTypes.UUID,
       })
@@ -28,11 +27,7 @@ module.exports = (sequelize, DataTypes) => {
     nickname: {
       type: DataTypes.STRING,
     },
-    passhash: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    salt: {
+    passwordHash: {
       type: DataTypes.STRING,
       allowNull: false
     },

@@ -10,11 +10,7 @@ module.exports = {
       nickname: {
         type: Sequelize.STRING,
       },
-      passhash: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      salt: {
+      passwordHash: {
         type: Sequelize.STRING,
         allowNull: false
       },
