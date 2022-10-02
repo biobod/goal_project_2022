@@ -15,12 +15,36 @@ exports.signup = async (req, res) => {
             passwordHash: bcrypt.hashSync(req.body.password, saltRounds),
         });
         if (user) {
-            res.send({ message: "User registered successfully!" });
+            const token = jwt.sign({ user }, config.secret, {
+                expiresIn: '24h'
+            });
+
+            res.cookie("token", token, { maxAge: 60000 * 1000 })
+            res.send({
+                id: user.id,
+                email: user.email,
+                nickname: user.nickname
+            });
         }
     } catch (error) {
         res.status(500).send({ message: error.message });
     }
 };
+
+exports.checkToken = (req, res, next) => {
+    const token = req.cookies.token
+    if(!token) {
+        console.log('do we here? ', next)
+        // next()
+    }
+    try {
+        res.send(jwt.verify(token, config.secret))
+        res.end();
+    } catch (e) {
+        next();
+    }
+}
+
 exports.signin = async (req, res) => {
     try {
         const user = await User.findOne({
@@ -40,21 +64,22 @@ exports.signin = async (req, res) => {
                 message: "Invalid Password!",
             });
         }
-        const token = jwt.sign({ id: user.id }, config.secret, {
+        const token = jwt.sign({ user }, config.secret, {
             expiresIn: '24h'
         });
-        // TODO need to think about token
-        // req.session.token = token;
+
+        res.cookie("token", token, { maxAge: 60000 * 1000 })
+
         return res.status(200).send({
             id: user.id,
             nickname: user.nickname,
             email: user.email,
-            token
         });
     } catch (error) {
         return res.status(500).send({ message: error.message });
     }
 };
+
 exports.signout = async (req, res) => {
     try {
         req.session = null;
