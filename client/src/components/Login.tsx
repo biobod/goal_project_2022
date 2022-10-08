@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react'
+import React, {useContext, useState} from 'react'
 import TextField from '@mui/material/TextField'
 import axios from 'axios'
 import Button from '@mui/material/Button'
@@ -44,21 +44,13 @@ const Form = styled('form')({
 
 const Login = () => {
     const navigate = useNavigate()
-    const { user, updateUser } = useContext(UserContext)
+    const { updateUser } = useContext(UserContext)
 
     const [error, setError] = useState('')
     const [data, setData] = useState({
         email: '',
         password: '',
     })
-
-    useEffect(() => {
-        let timer: ReturnType<typeof setTimeout>
-        if (user) {
-            timer = setTimeout(() => navigate('/', { replace: true }), 1000)
-        }
-        return () => clearTimeout(timer)
-    }, [user])
 
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { value, name } = e.target
@@ -77,6 +69,7 @@ const Login = () => {
                 headers: { 'Content-Type': 'application/json' },
             })
             updateUser(userData)
+            navigate('/', { replace: true })
         } catch (error) {
             setError(
                 error.response?.data?.message ||

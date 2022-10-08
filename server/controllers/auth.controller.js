@@ -6,6 +6,13 @@ const saltRounds = 10;
 
 const User = db.User;
 
+const getMainUserData = user => {
+    const { id, email, nickname }= user
+    return ({
+        id, email, nickname
+    })
+};
+
 exports.signup = async (req, res) => {
     // Save User to Database
     try {
@@ -15,35 +22,18 @@ exports.signup = async (req, res) => {
             passwordHash: bcrypt.hashSync(req.body.password, saltRounds),
         });
         if (user) {
-            const token = jwt.sign({ user }, config.secret, {
+            const userData = getMainUserData(user)
+            const token = jwt.sign(userData, config.secret, {
                 expiresIn: '24h'
             });
 
             res.cookie("token", token, { maxAge: 60000 * 1000 })
-            res.send({
-                id: user.id,
-                email: user.email,
-                nickname: user.nickname
-            });
+            res.send(userData);
         }
     } catch (error) {
         res.status(500).send({ message: error.message });
     }
 };
-
-exports.checkToken = (req, res, next) => {
-    const token = req.cookies.token
-    if(!token) {
-        console.log('do we here? ', next)
-        // next()
-    }
-    try {
-        res.send(jwt.verify(token, config.secret))
-        res.end();
-    } catch (e) {
-        next();
-    }
-}
 
 exports.signin = async (req, res) => {
     try {
@@ -64,7 +54,9 @@ exports.signin = async (req, res) => {
                 message: "Invalid Password!",
             });
         }
-        const token = jwt.sign({ user }, config.secret, {
+        const userData = getMainUserData(user)
+
+        const token = jwt.sign(userData, config.secret, {
             expiresIn: '24h'
         });
 
@@ -82,7 +74,8 @@ exports.signin = async (req, res) => {
 
 exports.signout = async (req, res) => {
     try {
-        req.session = null;
+        res.clearCookie("token")
+
         return res.status(200).send({
             message: "You've been signed out!"
         });
@@ -90,3 +83,12 @@ exports.signout = async (req, res) => {
         this.next(err);
     }
 };
+
+exports.verifyToken = (req, res) => {
+    const token = req.cookies.token
+    try {
+        res.send(jwt.verify(token, config.secret))
+    } catch (e) {
+        res.status(401).send({ message: 'User unauthorized'});
+    }
+}

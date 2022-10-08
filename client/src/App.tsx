@@ -20,9 +20,10 @@ const darkTheme = createTheme({
 
 
 
-const App= () => {
+const App = () => {
     const [user, updateUser] = useState(null);
     const userState = {user, updateUser}
+
     return (
         <BrowserRouter>
             <ThemeProvider theme={darkTheme}>

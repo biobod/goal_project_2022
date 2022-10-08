@@ -9,6 +9,10 @@ import { useContext } from 'react'
 import UserContext from '../contexts/UserContext'
 import axios from "axios";
 import paths from "../../../common/paths";
+import {AUTH_ROUTES} from "../../../common/authUrls";
+
+const { SIGN_IN, SIGN_UP } = AUTH_ROUTES;
+
 
 const Navbar = () => {
     const { user, updateUser } = useContext(UserContext)
@@ -16,6 +20,7 @@ const Navbar = () => {
         try {
             await axios({
                 url: paths.SIGNOUT,
+                withCredentials: true,
                 method: 'post',
                 headers: { 'Content-Type': 'application/json' },
             })
@@ -27,12 +32,12 @@ const Navbar = () => {
 
     const navigate = useNavigate()
     const goToLogin = () => {
-        navigate('/login')
+        navigate(SIGN_IN)
     }
     const goToSignUp = () => {
-        navigate('/signup')
+        navigate(SIGN_UP)
     }
-    console.log({ user, updateUser })
+    console.log({ user })
     return (
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="static">
