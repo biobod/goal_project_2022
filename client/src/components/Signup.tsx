@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import { styled } from '@mui/material/styles'
 import CustomizedSnackbar from './CustomizedSnackbar'
-import UserContext from '../contexts/UserContext'
+import UserContext, {UserContextType} from '../contexts/UserContext'
 import paths from '../../../common/paths'
 
 const Form = styled('form')({
@@ -47,8 +47,7 @@ const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/
 const validateEmail = (email: string) => {
     return String(email).toLowerCase().match(EMAIL_REGEX)
 }
-const validatePassword = (password: string) =>
-    String(password).match(PASSWORD_REGEX)
+const validatePassword = (password: string) => String(password).match(PASSWORD_REGEX)
 const validateNickname = (nickname: string) => nickname.length > 3
 
 const VALIDATORS = {

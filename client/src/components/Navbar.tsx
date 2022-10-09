@@ -50,7 +50,7 @@ function stringAvatar(name: string) {
 
 const Navbar = () => {
     const navigate = useNavigate()
-    const { user, updateUser } = useContext<UserContextType>(UserContext)
+    const { user, updateUser } = useContext(UserContext)
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
     const open = Boolean(anchorEl)
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
