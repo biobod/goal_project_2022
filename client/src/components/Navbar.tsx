@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React, { useContext, useState } from 'react'
 import AppBar from '@mui/material/AppBar'
 import Avatar from '@mui/material/Avatar'
 import Tooltip from '@mui/material/Tooltip'
@@ -9,8 +9,7 @@ import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import { useNavigate } from 'react-router'
-import { useContext } from 'react'
-import UserContext from '../contexts/UserContext'
+import UserContext, { UserContextType } from '../contexts/UserContext'
 import axios from 'axios'
 import paths from '../../../common/paths'
 import { AUTH_ROUTES } from '../../../common/authUrls'
@@ -51,8 +50,8 @@ function stringAvatar(name: string) {
 
 const Navbar = () => {
     const navigate = useNavigate()
-    const { user, updateUser } = useContext(UserContext)
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+    const { user, updateUser } = useContext<UserContextType>(UserContext)
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
     const open = Boolean(anchorEl)
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget)
