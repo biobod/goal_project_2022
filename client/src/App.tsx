@@ -4,7 +4,8 @@ import { ThemeProvider, createTheme } from '@mui/material/styles'
 import { BrowserRouter } from 'react-router-dom'
 import routes from './routes'
 import Box from '@mui/material/Box'
-import UserContext from './contexts/UserContext';
+import UserContext from './contexts/UserContext'
+import UserDataContext from './contexts/UserDataContext'
 
 const darkTheme = createTheme({
     palette: {
@@ -18,27 +19,30 @@ const darkTheme = createTheme({
     },
 })
 
-
-
 const App = () => {
-    const [user, updateUser] = useState(null);
-    const userState = {user, updateUser}
+    const [user, updateUser] = useState(null)
+    const [userData, updateUserData] = useState(null)
+
+    const userState = { user, updateUser }
+    const userDataState = { userData, updateUserData }
 
     return (
         <BrowserRouter>
             <ThemeProvider theme={darkTheme}>
                 <UserContext.Provider value={userState}>
-                <Box
-                    sx={{
-                        width: '100%',
-                        height: '100%',
-                        position: 'absolute',
-                        backgroundColor: '#e3e1e1',
-                    }}
-                >
-                    <Navbar />
-                    {routes()}
-                </Box>
+                    <UserDataContext.Provider value={userDataState}>
+                        <Box
+                            sx={{
+                                width: '100%',
+                                height: '100%',
+                                position: 'absolute',
+                                backgroundColor: '#e3e1e1',
+                            }}
+                        >
+                            <Navbar />
+                            {routes()}
+                        </Box>
+                    </UserDataContext.Provider>
                 </UserContext.Provider>
             </ThemeProvider>
         </BrowserRouter>
