@@ -1,13 +1,16 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, {ReactElement, useContext, useEffect, useState} from 'react'
 import { Navigate } from 'react-router-dom'
 import axios from 'axios'
 import CircularProgress from '@mui/material/CircularProgress'
 
-import HomePage from './HomePage'
 import UserContext from '../contexts/UserContext'
 import paths from '../../../common/paths'
 import { styled } from '@mui/material/styles'
 import {AUTH_ROUTES} from "../../../common/authUrls";
+
+type ProtectedPageProps = {
+    component: React.ReactElement,
+}
 
 const Progress = styled('div')({
     width: '100%',
@@ -15,8 +18,11 @@ const Progress = styled('div')({
     display: 'flex',
     paddingTop: '20%',
     justifyContent: 'center',
-})
-const ProtectedHomePage = () => {
+});
+
+
+
+const ProtectedPage = ({ component }: ProtectedPageProps) => {
     const { user, updateUser } = useContext(UserContext)
     const [isLoading, setIsloading] = useState(!user);
 
@@ -52,9 +58,9 @@ const ProtectedHomePage = () => {
         )
     }
     if (user) {
-        return <HomePage />
+        return component
     }
     return <Navigate to={AUTH_ROUTES.SIGN_IN} replace />
 }
 
-export default ProtectedHomePage
+export default ProtectedPage

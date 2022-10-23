@@ -9,12 +9,11 @@ import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import { useNavigate } from 'react-router'
-import UserContext, { UserContextType } from '../contexts/UserContext'
+import UserContext from '../contexts/UserContext'
 import axios from 'axios'
 import paths from '../../../common/paths'
-import { AUTH_ROUTES } from '../../../common/authUrls'
+import {SIGN_UP, SIGN_IN, HOME } from '../constants/routePaths'
 
-const { SIGN_IN, SIGN_UP } = AUTH_ROUTES
 
 function stringToColor(string: string) {
     let hash = 0
@@ -77,8 +76,8 @@ const Navbar = () => {
 
     const goToLogin = () => navigate(SIGN_IN)
     const goToSignUp = () => navigate(SIGN_UP)
+    const goToHome = () => navigate(HOME);
 
-    console.log({ user })
     return (
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="static">
@@ -87,6 +86,8 @@ const Navbar = () => {
                         variant="h6"
                         component="div"
                         sx={{ flexGrow: 1 }}
+                        style={{ cursor: 'pointer' }}
+                        onClick={goToHome}
                     >
                         Super Game
                     </Typography>

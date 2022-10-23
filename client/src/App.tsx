@@ -33,7 +33,7 @@ const App = () => {
                         width: '100%',
                         height: '100%',
                         position: 'absolute',
-                        backgroundColor: '#f5f5f5',
+                        backgroundColor: '#e3e1e1',
                     }}
                 >
                     <Navbar />

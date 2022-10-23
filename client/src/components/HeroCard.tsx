@@ -5,17 +5,22 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import {useNavigate} from "react-router-dom";
 // @ts-ignore
 import plusImage from '../../public/images/plus.jpg' // eslint-disable-line
+import { PICK_HERO } from '../constants/routePaths'
 
 const HeroCard = () => {
+    const navigate = useNavigate()
+
+    const goToPickPage = () => navigate(PICK_HERO)
     return (
         <Card sx={{ maxWidth: 345 }}>
             <CardMedia
                 component="img"
                 height="300"
                 image={plusImage}
-                alt="green iguana"
+                alt="add hero"
             />
             <CardContent>
                 <Typography gutterBottom variant="h5" component="div">
@@ -26,7 +31,7 @@ const HeroCard = () => {
                 </Typography>
             </CardContent>
             <CardActions>
-                <Button size="small">Pick your fighter</Button>
+                <Button size="small" onClick={goToPickPage}>Pick your fighter</Button>
             </CardActions>
         </Card>
     );

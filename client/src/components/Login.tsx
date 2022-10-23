@@ -4,9 +4,10 @@ import axios from 'axios'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import { styled } from '@mui/material/styles'
+import {useNavigate} from "react-router-dom";
 import paths from '../../../common/paths'
 import UserContext from '../contexts/UserContext'
-import {useNavigate} from "react-router-dom";
+import { HOME } from '../constants/routePaths'
 
 const Form = styled('form')({
     backgroundColor: 'white',
@@ -69,7 +70,7 @@ const Login = () => {
                 headers: { 'Content-Type': 'application/json' },
             })
             updateUser(userData)
-            navigate('/', { replace: true })
+            navigate(HOME, { replace: true })
         } catch (error) {
             setError(
                 error.response?.data?.message ||

@@ -6,8 +6,9 @@ import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import { styled } from '@mui/material/styles'
 import CustomizedSnackbar from './CustomizedSnackbar'
-import UserContext, {UserContextType} from '../contexts/UserContext'
+import UserContext from '../contexts/UserContext'
 import paths from '../../../common/paths'
+import { HOME } from '../constants/routePaths'
 
 const Form = styled('form')({
     backgroundColor: 'white',
@@ -92,7 +93,7 @@ const Signup = () => {
     useEffect(() => {
         let timer: ReturnType<typeof setTimeout>
         if (user) {
-            timer = setTimeout(() => navigate('/', { replace: true }), 1000)
+            timer = setTimeout(() => navigate(HOME, { replace: true }), 1000)
         }
         return () => clearTimeout(timer)
     }, [user])
