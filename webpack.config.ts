@@ -31,6 +31,10 @@ const webpackConfig: Configuration = {
                 loader: 'url-loader'
             },
             {
+                test: /\.(png|jpe?g|gif)$/i,
+                loader: 'file-loader',
+            },
+            {
                 test: /\.tsx?$/,
                 loader: "ts-loader",
                 options: {
