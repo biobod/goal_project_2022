@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
 const User = db.User;
+const Statistic = db.Statistic;
 
 const getMainUserData = user => {
     const { id, email, nickname }= user
@@ -20,6 +21,11 @@ exports.signup = async (req, res) => {
             nickname: req.body.nickname,
             email: req.body.email,
             passwordHash: bcrypt.hashSync(req.body.password, saltRounds),
+        });
+        await Statistic.create({
+            current_points: 0,
+            level: 1,
+            userId: user.id
         });
         if (user) {
             const userData = getMainUserData(user)
