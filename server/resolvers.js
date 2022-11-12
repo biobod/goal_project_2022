@@ -48,6 +48,10 @@ const resolvers = {
 
             return user
         },
+        async logoutUser(parent, args, { res }) {
+            res.clearCookie("token")
+            return "You've been signed out!"
+        },
     },
     Mutation: {
         async createUser(parent, args, context, info) {

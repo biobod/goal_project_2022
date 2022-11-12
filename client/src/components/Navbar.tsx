@@ -10,9 +10,8 @@ import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import { useNavigate } from 'react-router'
 import UserContext from '../contexts/UserContext'
-import axios from 'axios'
-import paths from '../../../common/paths'
 import {SIGN_UP, SIGN_IN, HOME } from '../constants/routePaths'
+import {gql, useLazyQuery} from "@apollo/client";
 
 
 function stringToColor(string: string) {
@@ -47,6 +46,12 @@ function stringAvatar(name: string) {
     }
 }
 
+const LOGOUT_USER = gql`
+    query logoutUser {
+        logoutUser
+    }
+`;
+
 const Navbar = () => {
     const navigate = useNavigate()
     const { user, updateUser } = useContext(UserContext)
@@ -58,21 +63,12 @@ const Navbar = () => {
     const handleClose = () => {
         setAnchorEl(null)
     }
-
-    const onLogout = async () => {
-        try {
-            await axios({
-                url: paths.SIGNOUT,
-                withCredentials: true,
-                method: 'post',
-                headers: { 'Content-Type': 'application/json' },
-            })
-            updateUser(null)
-            handleClose()
-        } catch (error) {
-            console.error(error)
-        }
+    const onCompleted = () => {
+        updateUser(null)
     }
+    const [onLogout] = useLazyQuery(LOGOUT_USER, {
+        onCompleted,
+    })
 
     const goToLogin = () => navigate(SIGN_IN)
     const goToSignUp = () => navigate(SIGN_UP)
@@ -110,7 +106,7 @@ const Navbar = () => {
                                     'aria-labelledby': 'basic-button',
                                 }}
                             >
-                                <MenuItem onClick={onLogout}>Logout</MenuItem>
+                                <MenuItem onClick={() => onLogout()}>Logout</MenuItem>
                             </Menu>
                         </>
                     )}

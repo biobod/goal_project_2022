@@ -42,7 +42,7 @@ const ProtectedPage = ({ component }: ProtectedPageProps) => {
         updateUser({ id: verifyToken.id, nickname: verifyToken.nickname })
     }
 
-    const { loading } = useQuery(GET_USER_BY_TOKEN, { onCompleted });
+    const { loading } = useQuery(GET_USER_BY_TOKEN, { onCompleted, fetchPolicy: "network-only" });
 
 
     if (loading) {
