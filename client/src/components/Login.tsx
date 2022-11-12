@@ -1,13 +1,20 @@
-import React, {useContext, useState} from 'react'
+import React, { useContext, useState } from 'react'
 import TextField from '@mui/material/TextField'
-import axios from 'axios'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import { styled } from '@mui/material/styles'
-import {useNavigate} from "react-router-dom";
-import paths from '../../../common/paths'
+import { useNavigate } from 'react-router-dom'
 import UserContext from '../contexts/UserContext'
 import { HOME } from '../constants/routePaths'
+import { useLazyQuery, gql } from '@apollo/client'
+
+type loginUser = {
+    nickname: string
+    id: string
+}
+type responseType = {
+    loginUser: loginUser
+}
 
 const Form = styled('form')({
     backgroundColor: 'white',
@@ -43,44 +50,36 @@ const Form = styled('form')({
     },
 })
 
+const LOGIN_USER = gql`
+    query loginUser($email: String!, $password: String!) {
+        loginUser(email: $email, password: $password) {
+            id
+            nickname
+        }
+    }
+`
+
 const Login = () => {
     const navigate = useNavigate()
     const { updateUser } = useContext(UserContext)
 
-    const [error, setError] = useState('')
-    const [data, setData] = useState({
+    const [loginData, setLoginData] = useState({
         email: '',
         password: '',
     })
+    const onCompleted = ({ loginUser }: responseType) => {
+        updateUser({ id: loginUser.id, nickname: loginUser.nickname })
+        navigate(HOME, { replace: true })
+    }
+    const [onLogin, { error }] = useLazyQuery(LOGIN_USER, {
+        onCompleted,
+    })
+    const handleLogin = () => onLogin({ variables: { ...loginData } })
 
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { value, name } = e.target
-        if (error) {
-            setError('')
-        }
-        setData({ ...data, [name]: value })
+        setLoginData({ ...loginData, [name]: value })
     }
-    const onLogin = async () => {
-        try {
-            const { data: userData } = await axios({
-                url: paths.LOGIN,
-                method: 'post',
-                withCredentials: true,
-                data,
-                headers: { 'Content-Type': 'application/json' },
-            })
-            updateUser(userData)
-            navigate(HOME, { replace: true })
-        } catch (error) {
-            setError(
-                error.response?.data?.message ||
-                    error.response?.statusText ||
-                    error.message
-            )
-        }
-    }
-
-
 
     return (
         <Form>
@@ -88,22 +87,23 @@ const Login = () => {
                 name="email"
                 label="Email"
                 onChange={onChange}
-                value={data.email}
-                inputProps={{
-                    autoComplete: 'new-password',
-                }}
+                value={loginData.email}
+                autoComplete="off"
             />
             <TextField
                 name="password"
                 label="Password"
                 onChange={onChange}
                 type="password"
-                value={data.password}
+                value={loginData.password}
+                autoComplete="off"
             />
             {error && (
-                <Typography className="error-message">{error}</Typography>
+                <Typography className="error-message">
+                    {error?.message}
+                </Typography>
             )}
-            <Button color="secondary" variant="contained" onClick={onLogin}>
+            <Button color="secondary" variant="contained" onClick={handleLogin}>
                 Login
             </Button>
         </Form>

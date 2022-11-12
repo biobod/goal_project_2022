@@ -1,15 +1,21 @@
-import React, {ReactElement, useContext, useEffect, useState} from 'react'
+import React, { useContext } from 'react'
 import { Navigate } from 'react-router-dom'
-import axios from 'axios'
 import CircularProgress from '@mui/material/CircularProgress'
+import { useQuery, gql } from '@apollo/client';
 
 import UserContext from '../contexts/UserContext'
-import paths from '../../../common/paths'
 import { styled } from '@mui/material/styles'
 import {AUTH_ROUTES} from "../../../common/authUrls";
 
 type ProtectedPageProps = {
     component: React.ReactElement,
+}
+type verifyToken = {
+    nickname: string
+    id: string
+}
+type responseType = {
+    verifyToken: verifyToken
 }
 
 const Progress = styled('div')({
@@ -20,37 +26,26 @@ const Progress = styled('div')({
     justifyContent: 'center',
 });
 
-
+const GET_USER_BY_TOKEN= gql`
+    query verifyToken {
+        verifyToken {
+            id
+            nickname
+        }
+    }
+`;
 
 const ProtectedPage = ({ component }: ProtectedPageProps) => {
     const { user, updateUser } = useContext(UserContext)
-    const [isLoading, setIsloading] = useState(!user);
 
-    const getUser = async () => {
-        setIsloading(true)
-        try {
-            const { data } = await axios({
-                url: paths.TOKEN,
-                method: 'get',
-                withCredentials: true,
-                headers: { 'Content-Type': 'application/json' },
-            })
-
-            updateUser(data)
-        } catch (error) {
-            console.error(error)
-        } finally {
-            setIsloading(false)
-        }
+    const onCompleted = ({ verifyToken }: responseType) => {
+        updateUser({ id: verifyToken.id, nickname: verifyToken.nickname })
     }
-    useEffect(() => {
-        if (!user) {
-            getUser()
-        }
-    }, [])
+
+    const { loading } = useQuery(GET_USER_BY_TOKEN, { onCompleted });
 
 
-    if (isLoading) {
+    if (loading) {
         return (
             <Progress>
                 <CircularProgress color="secondary" size={100} />

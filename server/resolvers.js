@@ -24,6 +24,7 @@ const resolvers = {
         async verifyToken(parent, args, { req }) {
             const {token} = req.cookies
             const user = jwt.verify(token, config.secret)
+
             return user
         },
         async loginUser(parent, { email, password }, context) {
@@ -43,8 +44,7 @@ const resolvers = {
             const token = jwt.sign(getMainUserData(user), config.secret, {
                 expiresIn: '24h'
             });
-
-            context.res.cookie("token", token, { maxAge: 60000 * 1000 })
+            context.res.cookie("token", token, { httpOnly: true, maxAge: 60000 * 1000 })
 
             return user
         },
