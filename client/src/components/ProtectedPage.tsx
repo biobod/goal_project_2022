@@ -1,14 +1,14 @@
 import React, { useContext } from 'react'
 import { Navigate } from 'react-router-dom'
 import CircularProgress from '@mui/material/CircularProgress'
-import { useQuery, gql } from '@apollo/client';
+import { useQuery, gql } from '@apollo/client'
 
 import UserContext from '../contexts/UserContext'
 import { styled } from '@mui/material/styles'
-import {AUTH_ROUTES} from "../../../common/authUrls";
+import { SIGN_IN } from '../constants/routePaths'
 
 type ProtectedPageProps = {
-    component: React.ReactElement,
+    component: React.ReactElement
 }
 type verifyToken = {
     nickname: string
@@ -24,16 +24,16 @@ const Progress = styled('div')({
     display: 'flex',
     paddingTop: '20%',
     justifyContent: 'center',
-});
+})
 
-const GET_USER_BY_TOKEN= gql`
+const GET_USER_BY_TOKEN = gql`
     query verifyToken {
         verifyToken {
             id
             nickname
         }
     }
-`;
+`
 
 const ProtectedPage = ({ component }: ProtectedPageProps) => {
     const { user, updateUser } = useContext(UserContext)
@@ -42,8 +42,10 @@ const ProtectedPage = ({ component }: ProtectedPageProps) => {
         updateUser({ id: verifyToken.id, nickname: verifyToken.nickname })
     }
 
-    const { loading } = useQuery(GET_USER_BY_TOKEN, { onCompleted, fetchPolicy: "network-only" });
-
+    const { loading } = useQuery(GET_USER_BY_TOKEN, {
+        onCompleted,
+        fetchPolicy: 'network-only',
+    })
 
     if (loading) {
         return (
@@ -55,7 +57,7 @@ const ProtectedPage = ({ component }: ProtectedPageProps) => {
     if (user) {
         return component
     }
-    return <Navigate to={AUTH_ROUTES.SIGN_IN} replace />
+    return <Navigate to={SIGN_IN} replace />
 }
 
 export default ProtectedPage

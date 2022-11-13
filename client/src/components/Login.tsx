@@ -67,8 +67,8 @@ const Login = () => {
         email: '',
         password: '',
     })
-    const onCompleted = ({ loginUser }: responseType) => {
-        updateUser({ id: loginUser.id, nickname: loginUser.nickname })
+    const onCompleted = ({ loginUser: { id, nickname } }: responseType) => {
+        updateUser({ id, nickname })
         navigate(HOME, { replace: true })
     }
     const [onLogin, { error }] = useLazyQuery(LOGIN_USER, {

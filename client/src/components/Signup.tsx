@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react'
-import axios from 'axios'
+import { useMutation, gql } from '@apollo/client'
 import { useNavigate } from 'react-router-dom'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
@@ -7,8 +7,15 @@ import Button from '@mui/material/Button'
 import { styled } from '@mui/material/styles'
 import CustomizedSnackbar from './CustomizedSnackbar'
 import UserContext from '../contexts/UserContext'
-import paths from '../../../common/paths'
 import { HOME } from '../constants/routePaths'
+
+type createUser = {
+    nickname: string
+    id: string
+}
+type responseType = {
+    createUser: createUser
+}
 
 const Form = styled('form')({
     backgroundColor: 'white',
@@ -48,7 +55,8 @@ const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/
 const validateEmail = (email: string) => {
     return String(email).toLowerCase().match(EMAIL_REGEX)
 }
-const validatePassword = (password: string) => String(password).match(PASSWORD_REGEX)
+const validatePassword = (password: string) =>
+    String(password).match(PASSWORD_REGEX)
 const validateNickname = (nickname: string) => nickname.length > 3
 
 const VALIDATORS = {
@@ -56,6 +64,18 @@ const VALIDATORS = {
     password: validatePassword,
     nickname: validateNickname,
 }
+const CREATE_USER = gql`
+    mutation createUser(
+        $email: String!
+        $password: String!
+        $nickname: String!
+    ) {
+        createUser(email: $email, password: $password, nickname: $nickname) {
+            id
+            nickname
+        }
+    }
+`
 
 const Signup = () => {
     const navigate = useNavigate()
@@ -64,11 +84,18 @@ const Signup = () => {
     const [responseError, setResponseError] = useState('')
     const [validationError, setValidationError] = useState('')
     const [userIsSigned, setUserIsSigned] = useState(false)
-    const [data, setData] = useState({
+    const [formData, setFormData] = useState({
         email: '',
         password: '',
         nickname: '',
     })
+    const onError = (e: Error) => setResponseError(e.message)
+    const onCompleted = ({ createUser: { id, nickname } }: responseType) => {
+        updateUser({ id, nickname })
+        setUserIsSigned(true)
+    }
+
+    const [signUp] = useMutation(CREATE_USER, { onError, onCompleted })
 
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { value, name } = e.target
@@ -78,10 +105,10 @@ const Signup = () => {
         if (validationError) {
             setValidationError('')
         }
-        setData({ ...data, [name]: value })
+        setFormData({ ...formData, [name]: value })
     }
     const validation = () => {
-        for (const [name, value] of Object.entries(data)) {
+        for (const [name, value] of Object.entries(formData)) {
             const isValid = VALIDATORS[name](value)
             if (!isValid) {
                 setValidationError(`The ${name} is not valid`)
@@ -93,33 +120,17 @@ const Signup = () => {
     useEffect(() => {
         let timer: ReturnType<typeof setTimeout>
         if (user) {
-            timer = setTimeout(() => navigate(HOME, { replace: true }), 1000)
+            timer = setTimeout(() => navigate(HOME, { replace: true }), 2000)
         }
         return () => clearTimeout(timer)
     }, [user])
 
-    const onSignUp = async () => {
+    const onSignUp2 = async () => {
         const valid = validation()
         if (!valid) {
             return
         }
-        try {
-            const { data: userData } = await axios({
-                url: paths.SIGNUP,
-                method: 'post',
-                withCredentials: true,
-                data,
-                headers: { 'Content-Type': 'application/json' },
-            })
-            setUserIsSigned(true)
-            updateUser(userData)
-        } catch (error) {
-            setResponseError(
-                error.response?.data?.message ||
-                    error.response?.statusText ||
-                    error.message
-            )
-        }
+        await signUp({ variables: { ...formData } })
     }
 
     return (
@@ -134,23 +145,23 @@ const Signup = () => {
                     name="nickname"
                     label="Nickname"
                     onChange={onChange}
-                    value={data.nickname}
+                    value={formData.nickname}
+                    autoComplete="off"
                 />
                 <TextField
                     name="email"
                     label="Email"
                     onChange={onChange}
-                    value={data.email}
-                    inputProps={{
-                        autoComplete: 'new-password',
-                    }}
+                    value={formData.email}
+                    autoComplete="off"
                 />
                 <TextField
                     name="password"
                     label="Password"
                     onChange={onChange}
                     type="password"
-                    value={data.password}
+                    value={formData.password}
+                    autoComplete="off"
                 />
                 {(responseError || validationError) && (
                     <Typography className="error-message">
@@ -160,7 +171,7 @@ const Signup = () => {
                 <Button
                     color="secondary"
                     variant="contained"
-                    onClick={onSignUp}
+                    onClick={onSignUp2}
                 >
                     Sign Up
                 </Button>
