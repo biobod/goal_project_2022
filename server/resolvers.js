@@ -17,6 +17,11 @@ const setToken = ({ user, context }) => {
 
 // (parent, args, context, info)
 const resolvers = {
+    User: {
+        statistic: async (obj) => models.Statistic.findOne({
+            where: { userId: obj.id },
+        })
+    },
     Query: {
         async getUser(parent, { id }) {
             return models.User.findByPk(id)
@@ -62,11 +67,11 @@ const resolvers = {
                 email,
                 passwordHash: bcrypt.hashSync(password, saltRounds),
             })
-            // await models.Statistic.create({
-            //     current_points: 0,
-            //     level: 1,
-            //     userId: user.id
-            // });
+            await models.Statistic.create({
+                current_points: 0,
+                level: 1,
+                userId: user.id
+            });
             setToken({ user, context })
             return user
         },
