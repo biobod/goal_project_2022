@@ -25,7 +25,7 @@ const App = () => {
 
     const userState = { user, updateUser }
     const userDataState = { userData, updateUserData }
-
+    console.log({ userData })
     return (
         <BrowserRouter>
             <ThemeProvider theme={darkTheme}>

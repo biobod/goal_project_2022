@@ -12,10 +12,18 @@ import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import CardActions from '@mui/material/CardActions'
 import Button from '@mui/material/Button'
-import { styled } from '@mui/material/styles' // eslint-disable-line
+import { styled } from '@mui/material/styles'
+import { useNavigate } from 'react-router-dom'
+import { HOME } from '../constants/routePaths'
+import TextField from "@mui/material/TextField"; // eslint-disable-line
 
 const characters = [
-    { type: 'Defender', image: defender, description: 'Defender has a good armor and health. Can stay alive in hard battles' },
+    {
+        type: 'Defender',
+        image: defender,
+        description:
+            'Defender has a good armor and health. Can stay alive in hard battles',
+    },
     {
         type: 'Archer',
         image: archer,
@@ -30,8 +38,17 @@ const characters = [
             'of a tribal or clan-based warrior culture society that recognizes a separate warrior ' +
             'aristocracy, class, or caste.',
     },
-    { type: 'Mage', image: mage, description: 'Mage uses and practices magic derived from supernatural sources to defeat enemies' },
-    { type: 'Assassin', image: assasin, description: 'Exclusive murder. Has a deadly hits' },
+    {
+        type: 'Mage',
+        image: mage,
+        description:
+            'Mage uses and practices magic derived from supernatural sources to defeat enemies',
+    },
+    {
+        type: 'Assassin',
+        image: assasin,
+        description: 'Exclusive murder. Has a deadly hits',
+    },
 ]
 
 const CardsWrapper = styled('div')({
@@ -47,22 +64,39 @@ const Card = styled(MuiCard)(({ isSelected }) => ({
     },
 }))
 const ConfirmWrapper = styled('div')({
+    backgroundColor: '#212121',
+    gap: 20,
+    borderRadius: 5,
+    margin: '0 20px',
+    padding: 20,
     display: 'flex',
-    alignItems: "center",
-    justifyContent: "center",
-
+    alignItems: 'center',
+    justifyContent: 'center',
 })
 
 const PickHeroPage = () => {
     const [selected, onSelect] = useState<string | null>(null)
+    const [name, setName] = useState<string>('Rodger')
+    const navigate = useNavigate()
+
+    const goToHome = () => navigate(HOME)
+
+    const onSetName = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value } = e.target
+        setName(value)
+    }
 
     return (
-        <Container container sx={12}>
+        <Container component="div">
             <CardsWrapper>
                 {characters.map(({ type, image, description }) => {
                     const isSelected = selected === type
                     return (
-                        <Card sx={{ maxWidth: 280 }} isSelected={isSelected}>
+                        <Card
+                            sx={{ maxWidth: 280 }}
+                            isSelected={isSelected}
+                            key={type}
+                        >
                             <CardMedia
                                 component="img"
                                 height="300"
@@ -96,9 +130,21 @@ const PickHeroPage = () => {
                     )
                 })}
             </CardsWrapper>
-            <ConfirmWrapper>
-            <Button variant="contained" color='secondary' disabled={!selected}>Confirm</Button>
-            </ConfirmWrapper>
+            {selected && <ConfirmWrapper>
+                <TextField
+                    label="Name for your Personage"
+                    onChange={onSetName}
+                    value={name}
+                />
+                <Button
+                    variant="contained"
+                    color="secondary"
+                    disabled={!selected}
+                    onClick={goToHome}
+                >
+                    Confirm
+                </Button>
+            </ConfirmWrapper>}
         </Container>
     )
 }
