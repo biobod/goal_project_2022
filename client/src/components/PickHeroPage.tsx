@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, {useContext, useState} from 'react'
+import { useMutation, gql } from '@apollo/client'
 import assasin from '../../public/images/characters/assasin.png'
 import warrior from '../../public/images/characters/warrior.png'
 import archer from '../../public/images/characters/archer.png'
@@ -15,7 +16,8 @@ import Button from '@mui/material/Button'
 import { styled } from '@mui/material/styles'
 import { useNavigate } from 'react-router-dom'
 import { HOME } from '../constants/routePaths'
-import TextField from "@mui/material/TextField"; // eslint-disable-line
+import TextField from "@mui/material/TextField";
+import UserContext from "../contexts/UserContext"; // eslint-disable-line
 
 const characters = [
     {
@@ -74,7 +76,26 @@ const ConfirmWrapper = styled('div')({
     justifyContent: 'center',
 })
 
+
+const CREATE_PERSONAGE = gql`
+    mutation createPersonage(
+        $name: String!
+        $type: String!
+        $userId: String!
+    ) {
+        createPersonage(name: $name, type: $type, userId: $userId) {
+            id
+            name
+            wins
+            battles
+            characterId
+        }
+    }
+`
+
 const PickHeroPage = () => {
+    const { user, updateUser } = useContext(UserContext)
+    console.log({ user })
     const [selected, onSelect] = useState<string | null>(null)
     const [name, setName] = useState<string>('Rodger')
     const navigate = useNavigate()
@@ -85,6 +106,12 @@ const PickHeroPage = () => {
         const { value } = e.target
         setName(value)
     }
+    const onCompleted = ({ createPersonage: { ...data } }) => {
+        // updateUserData({ id, nickname })
+        console.log('onCompleted', data)
+        goToHome()
+    }
+    const [finalFunc] = useMutation(CREATE_PERSONAGE, { onCompleted })
 
     return (
         <Container component="div">

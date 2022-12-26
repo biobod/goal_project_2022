@@ -3,19 +3,15 @@ import { Navigate } from 'react-router-dom'
 import CircularProgress from '@mui/material/CircularProgress'
 import { useQuery, gql } from '@apollo/client'
 
-import UserContext from '../contexts/UserContext'
+import UserContext, { User } from '../contexts/UserContext'
 import { styled } from '@mui/material/styles'
 import { SIGN_IN } from '../constants/routePaths'
 
 type ProtectedPageProps = {
     component: React.ReactElement
 }
-type verifyToken = {
-    nickname: string
-    id: string
-}
 type responseType = {
-    verifyToken: verifyToken
+    verifyToken: User
 }
 
 const Progress = styled('div')({
@@ -31,6 +27,17 @@ const GET_USER_BY_TOKEN = gql`
         verifyToken {
             id
             nickname
+            statistic {
+                level
+                current_points
+            }
+            personages {
+                name
+                battles
+                wins
+                defeats
+                characterId
+            }
         }
     }
 `
@@ -39,7 +46,8 @@ const ProtectedPage = ({ component }: ProtectedPageProps) => {
     const { user, updateUser } = useContext(UserContext)
 
     const onCompleted = ({ verifyToken }: responseType) => {
-        updateUser({ id: verifyToken.id, nickname: verifyToken.nickname })
+        console.log('SUer =', verifyToken)
+        updateUser({ ...verifyToken })
     }
 
     const { loading } = useQuery(GET_USER_BY_TOKEN, {

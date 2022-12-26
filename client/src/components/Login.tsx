@@ -4,16 +4,13 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import { styled } from '@mui/material/styles'
 import { useNavigate } from 'react-router-dom'
-import UserContext from '../contexts/UserContext'
+import UserContext, { User } from '../contexts/UserContext'
 import { HOME } from '../constants/routePaths'
 import { useLazyQuery, gql } from '@apollo/client'
 
-type loginUser = {
-    nickname: string
-    id: string
-}
+
 type responseType = {
-    loginUser: loginUser
+    loginUser: User
 }
 
 const Form = styled('form')({
@@ -55,6 +52,17 @@ const LOGIN_USER = gql`
         loginUser(email: $email, password: $password) {
             id
             nickname
+            statistic {
+                level
+                current_points
+            }
+            personages {
+                name
+                battles
+                wins
+                defeats
+                characterId
+            }
         }
     }
 `
@@ -67,8 +75,9 @@ const Login = () => {
         email: '',
         password: '',
     })
-    const onCompleted = ({ loginUser: { id, nickname } }: responseType) => {
-        updateUser({ id, nickname })
+    const onCompleted = ({ loginUser }: responseType) => {
+        console.log({ loginUser })
+        updateUser(loginUser)
         navigate(HOME, { replace: true })
     }
     const [onLogin, { error }] = useLazyQuery(LOGIN_USER, {

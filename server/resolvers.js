@@ -20,7 +20,10 @@ const resolvers = {
     User: {
         statistic: async (obj) => models.Statistic.findOne({
             where: { userId: obj.id },
-        })
+        }),
+        personages: async (obj) => models.Personage.findAll({
+            where: { userId: obj.id },
+        }),
     },
     Query: {
         async getUser(parent, { id }) {
@@ -75,6 +78,20 @@ const resolvers = {
             setToken({ user, context })
             return user
         },
+        async createPersonage(parent, args, context, info) {
+            const { name, type, userId } = args
+            const data = await models.Character.findOne({
+                where: { name: type }
+            })
+            console.log(data)
+            const { id: characterId } = data
+            console.log(characterId)
+            const personage = await models.Personage.create({
+                name, characterId, userId, wins: 0, defeats: 0, battles: 0
+            })
+
+            return personage
+        }
     },
 }
 
