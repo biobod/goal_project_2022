@@ -1,11 +1,14 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { Navigate } from 'react-router-dom'
 import CircularProgress from '@mui/material/CircularProgress'
-import { useQuery, gql } from '@apollo/client'
+import { useQuery } from '@apollo/client'
 
 import UserContext, { User } from '../contexts/UserContext'
+import CharactersContext, { Character } from '../contexts/CharactersContext'
+
 import { styled } from '@mui/material/styles'
 import { SIGN_IN } from '../constants/routePaths'
+import { GET_USER_BY_TOKEN, GET_CHARACTERS } from '../queries'
 
 type ProtectedPageProps = {
     component: React.ReactElement
@@ -13,7 +16,9 @@ type ProtectedPageProps = {
 type responseType = {
     verifyToken: User
 }
-
+type responseCharactersType = {
+    getCharacters: [Character]
+}
 const Progress = styled('div')({
     width: '100%',
     height: '100%',
@@ -22,33 +27,15 @@ const Progress = styled('div')({
     justifyContent: 'center',
 })
 
-const GET_USER_BY_TOKEN = gql`
-    query verifyToken {
-        verifyToken {
-            id
-            nickname
-            statistic {
-                level
-                current_points
-            }
-            personages {
-                name
-                battles
-                wins
-                defeats
-                characterId
-            }
-        }
-    }
-`
-
 const ProtectedPage = ({ component }: ProtectedPageProps) => {
-    const { user, updateUser } = useContext(UserContext)
+    const { user, updateUser } = useContext(UserContext);
+    const { updateCharactersData } = useContext(CharactersContext);
 
-    const onCompleted = ({ verifyToken }: responseType) => {
-        console.log('SUer =', verifyToken)
-        updateUser({ ...verifyToken })
-    }
+    const onCompletedFetchCharacters = ({getCharacters,}: responseCharactersType) => updateCharactersData(getCharacters)
+    useQuery(GET_CHARACTERS, { onCompleted: onCompletedFetchCharacters })
+
+
+    const onCompleted = ({ verifyToken }: responseType) => updateUser({ ...verifyToken })
 
     const { loading } = useQuery(GET_USER_BY_TOKEN, {
         onCompleted,
@@ -65,6 +52,7 @@ const ProtectedPage = ({ component }: ProtectedPageProps) => {
     if (user) {
         return component
     }
+
     return <Navigate to={SIGN_IN} replace />
 }
 

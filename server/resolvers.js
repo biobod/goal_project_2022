@@ -55,6 +55,13 @@ const resolvers = {
             res.clearCookie('token')
             return "You've been signed out!"
         },
+        async getCharacter(obj, args, context, info) {
+            return models.Character.findByPk(args.id)
+        },
+        async getCharacters() {
+            return models.Character.findAll()
+        }
+
     },
     Mutation: {
         async createUser(parent, args, context, info) {
@@ -83,9 +90,8 @@ const resolvers = {
             const data = await models.Character.findOne({
                 where: { name: type }
             })
-            console.log(data)
             const { id: characterId } = data
-            console.log(characterId)
+
             const personage = await models.Personage.create({
                 name, characterId, userId, wins: 0, defeats: 0, battles: 0
             })

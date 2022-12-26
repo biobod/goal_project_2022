@@ -24,6 +24,7 @@
   },
   "include": [
     "client/src",
+    "client/public/images",
     "client/src/svg.d.ts",
     "webpack.config.ts"
   ],

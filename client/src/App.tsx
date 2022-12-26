@@ -5,6 +5,7 @@ import { BrowserRouter } from 'react-router-dom'
 import routes from './routes'
 import Box from '@mui/material/Box'
 import UserContext from './contexts/UserContext'
+import CharactersContext from './contexts/CharactersContext'
 
 const darkTheme = createTheme({
     palette: {
@@ -20,15 +21,21 @@ const darkTheme = createTheme({
 
 const App = () => {
     const [user, updateUser] = useState(null)
+    const [charactersData, updateCharactersData] = useState(null)
+
     const userState = { user, updateUser }
+    const characters = { charactersData, updateCharactersData }
+
     return (
         <BrowserRouter>
             <ThemeProvider theme={darkTheme}>
                 <UserContext.Provider value={userState}>
+                    <CharactersContext.Provider value={characters}>
                         <Box>
                             <Navbar />
                             {routes()}
                         </Box>
+                    </CharactersContext.Provider>
                 </UserContext.Provider>
             </ThemeProvider>
         </BrowserRouter>

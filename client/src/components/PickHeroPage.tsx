@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react'
+import React, { useContext, useState } from 'react'
 import { useMutation, gql } from '@apollo/client'
 import assasin from '../../public/images/characters/assasin.png'
 import warrior from '../../public/images/characters/warrior.png'
@@ -16,42 +16,9 @@ import Button from '@mui/material/Button'
 import { styled } from '@mui/material/styles'
 import { useNavigate } from 'react-router-dom'
 import { HOME } from '../constants/routePaths'
-import TextField from "@mui/material/TextField";
-import UserContext from "../contexts/UserContext"; // eslint-disable-line
-
-const characters = [
-    {
-        type: 'Defender',
-        image: defender,
-        description:
-            'Defender has a good armor and health. Can stay alive in hard battles',
-    },
-    {
-        type: 'Archer',
-        image: archer,
-        description:
-            'An archer is a person who practices archery, using a bow to shoot arrows.',
-    },
-    {
-        type: 'Warrior',
-        image: warrior,
-        description:
-            'A warrior is a person specializing in combat or warfare, especially within the context ' +
-            'of a tribal or clan-based warrior culture society that recognizes a separate warrior ' +
-            'aristocracy, class, or caste.',
-    },
-    {
-        type: 'Mage',
-        image: mage,
-        description:
-            'Mage uses and practices magic derived from supernatural sources to defeat enemies',
-    },
-    {
-        type: 'Assassin',
-        image: assasin,
-        description: 'Exclusive murder. Has a deadly hits',
-    },
-]
+import TextField from '@mui/material/TextField'
+import UserContext from '../contexts/UserContext' // eslint-disable-line
+import { characters } from '../constants/characters'
 
 const CardsWrapper = styled('div')({
     display: 'inline-grid',
@@ -76,18 +43,14 @@ const ConfirmWrapper = styled('div')({
     justifyContent: 'center',
 })
 
-
 const CREATE_PERSONAGE = gql`
-    mutation createPersonage(
-        $name: String!
-        $type: String!
-        $userId: String!
-    ) {
+    mutation createPersonage($name: String!, $type: String!, $userId: String!) {
         createPersonage(name: $name, type: $type, userId: $userId) {
             id
             name
-            wins
             battles
+            wins
+            defeats
             characterId
         }
     }
@@ -95,6 +58,9 @@ const CREATE_PERSONAGE = gql`
 
 const PickHeroPage = () => {
     const { user, updateUser } = useContext(UserContext)
+    if (!user) {
+        return null
+    }
     console.log({ user })
     const [selected, onSelect] = useState<string | null>(null)
     const [name, setName] = useState<string>('Rodger')
@@ -106,13 +72,17 @@ const PickHeroPage = () => {
         const { value } = e.target
         setName(value)
     }
-    const onCompleted = ({ createPersonage: { ...data } }) => {
-        // updateUserData({ id, nickname })
-        console.log('onCompleted', data)
+    const onCompleted = ({ createPersonage }) => {
+        updateUser({
+            ...user,
+            personages: [...user.personages, createPersonage],
+        })
         goToHome()
     }
-    const [finalFunc] = useMutation(CREATE_PERSONAGE, { onCompleted })
+    const [onConfirm] = useMutation(CREATE_PERSONAGE, { onCompleted })
 
+    const handleConfirm = () =>
+        onConfirm({ variables: { userId: user.id, type: selected, name } })
     return (
         <Container component="div">
             <CardsWrapper>
@@ -157,21 +127,23 @@ const PickHeroPage = () => {
                     )
                 })}
             </CardsWrapper>
-            {selected && <ConfirmWrapper>
-                <TextField
-                    label="Name for your Personage"
-                    onChange={onSetName}
-                    value={name}
-                />
-                <Button
-                    variant="contained"
-                    color="secondary"
-                    disabled={!selected}
-                    onClick={goToHome}
-                >
-                    Confirm
-                </Button>
-            </ConfirmWrapper>}
+            {selected && (
+                <ConfirmWrapper>
+                    <TextField
+                        label="Name for your Personage"
+                        onChange={onSetName}
+                        value={name}
+                    />
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        disabled={!selected}
+                        onClick={handleConfirm}
+                    >
+                        Confirm
+                    </Button>
+                </ConfirmWrapper>
+            )}
         </Container>
     )
 }

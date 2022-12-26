@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react'
-import { useMutation, gql } from '@apollo/client'
+import { useMutation } from '@apollo/client'
 import { useNavigate } from 'react-router-dom'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
@@ -8,6 +8,7 @@ import { styled } from '@mui/material/styles'
 import CustomizedSnackbar from './CustomizedSnackbar'
 import UserContext from '../contexts/UserContext'
 import { HOME } from '../constants/routePaths'
+import { CREATE_USER } from '../queries';
 
 type createUser = {
     nickname: string
@@ -64,18 +65,7 @@ const VALIDATORS = {
     password: validatePassword,
     nickname: validateNickname,
 }
-const CREATE_USER = gql`
-    mutation createUser(
-        $email: String!
-        $password: String!
-        $nickname: String!
-    ) {
-        createUser(email: $email, password: $password, nickname: $nickname) {
-            id
-            nickname
-        }
-    }
-`
+
 
 const Signup = () => {
     const navigate = useNavigate()

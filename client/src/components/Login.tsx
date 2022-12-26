@@ -6,8 +6,8 @@ import { styled } from '@mui/material/styles'
 import { useNavigate } from 'react-router-dom'
 import UserContext, { User } from '../contexts/UserContext'
 import { HOME } from '../constants/routePaths'
-import { useLazyQuery, gql } from '@apollo/client'
-
+import { useLazyQuery } from '@apollo/client'
+import { LOGIN_USER } from '../queries';
 
 type responseType = {
     loginUser: User
@@ -47,25 +47,7 @@ const Form = styled('form')({
     },
 })
 
-const LOGIN_USER = gql`
-    query loginUser($email: String!, $password: String!) {
-        loginUser(email: $email, password: $password) {
-            id
-            nickname
-            statistic {
-                level
-                current_points
-            }
-            personages {
-                name
-                battles
-                wins
-                defeats
-                characterId
-            }
-        }
-    }
-`
+
 
 const Login = () => {
     const navigate = useNavigate()
