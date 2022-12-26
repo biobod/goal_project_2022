@@ -31,14 +31,7 @@ const App = () => {
             <ThemeProvider theme={darkTheme}>
                 <UserContext.Provider value={userState}>
                     <UserDataContext.Provider value={userDataState}>
-                        <Box
-                            sx={{
-                                width: '100%',
-                                height: '100%',
-                                position: 'absolute',
-                                backgroundColor: '#e3e1e1',
-                            }}
-                        >
+                        <Box>
                             <Navbar />
                             {routes()}
                         </Box>
