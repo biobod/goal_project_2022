@@ -86,7 +86,7 @@ const PickHeroPage = () => {
     return (
         <Container component="div">
             <CardsWrapper>
-                {characters.map(({ type, image, description }) => {
+                {Object.values(characters).map(({ type, image, description }) => {
                     const isSelected = selected === type
                     return (
                         <Card

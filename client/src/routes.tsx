@@ -4,13 +4,15 @@ import Signup from './components/Signup'
 import ProtectedPage from './components/ProtectedPage'
 import PickHeroPage from './components/PickHeroPage'
 import HomePage from './components/HomePage'
-import {SIGN_UP, SIGN_IN, HOME, PICK_HERO } from './constants/routePaths'
+import FightPage from './components/FightPage'
+import {SIGN_UP, SIGN_IN, HOME, PICK_HERO, FIGHT } from './constants/routePaths'
 
 
 export default function () {
     return (
         <Routes>
             <Route path={HOME} element={<ProtectedPage component={<HomePage />} />} />
+            <Route path={FIGHT} element={<ProtectedPage component={<FightPage />} />} />
             <Route
                 path={PICK_HERO}
                 element={<ProtectedPage component={<PickHeroPage />} />}

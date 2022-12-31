@@ -1,4 +1,5 @@
 export const SIGN_IN = '/signin'
 export const SIGN_UP = '/signup'
 export const HOME = '/'
+export const FIGHT = '/fight'
 export const PICK_HERO = '/pick-hero'
