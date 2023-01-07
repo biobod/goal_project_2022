@@ -2,7 +2,7 @@ import {createContext} from "react";
 
 export type Fighter = {
     id?: string,
-    name?: string,
+    name: string,
     wins?: number|string
     defeats?: number|string
     battles?: number|string

@@ -7,16 +7,20 @@ import {
     styled,
     Typography,
 } from '@mui/material'
+import { CheckCircle } from '@mui/icons-material';
+
 import { Fighter } from '../../contexts/FighterContext'
+import { HIT_OPTIONS } from '../../constants/fightConstants'
 
 type FighterBlockProps = {
     fighter: Fighter
-    isEnemy?: boolean
-    setHit?: (v: string) => void
-    setBlock?: (v: string) => void
+    isEnemy?: boolean | null
+    hitTo?: string | null
+    block?: string | null
+    setHitTo: (v: string) => void
+    setBlock: (v: string) => void
 }
 
-const HIT_OPTIONS = ['head', 'body', 'legs']
 
 const FighterBlockWrapper = styled('div')({
     display: 'flex',
@@ -38,12 +42,20 @@ const BorderLinearProgress = styled(LinearProgress)({
 
 const FighterBlock = ({
     fighter,
-    setHit,
+                          setHitTo,
     setBlock,
+    hitTo,
+    block,
     isEnemy,
 }: FighterBlockProps) => {
     const health = fighter?.life_points > 100 ? 100 : fighter?.life_points
 
+    const getIcon = (currentItem: string, selectedValue: string | null | undefined) => {
+        if(isEnemy) {
+            return null
+        }
+        return currentItem === selectedValue ? <CheckCircle /> : null
+    }
     const generalBlock = (
         <div>
             <Typography variant="h4" align="center">
@@ -60,17 +72,6 @@ const FighterBlock = ({
             <Card sx={{ maxWidth: 300 }}>
                 <CardMedia component="img" image={fighter?.image} />
             </Card>
-            {/*{isEnemy ? null : (*/}
-            {/*    <>*/}
-            {/*        <Typography variant="h6">*/}
-            {/*            Battles: {fighter.battles}*/}
-            {/*        </Typography>*/}
-            {/*        <Typography variant="h6">Wins: {fighter.wins}</Typography>*/}
-            {/*        <Typography variant="h6">*/}
-            {/*            Defeats: {fighter.defeats}*/}
-            {/*        </Typography>*/}
-            {/*    </>*/}
-            {/*)}*/}
         </div>
     )
     const blockSection = (
@@ -84,7 +85,7 @@ const FighterBlock = ({
                     color={isEnemy ? "neutral" : "info"}
                     variant="contained"
                     onClick={() => setBlock(value)}
-                    // disabled={isEnemy}
+                    startIcon={getIcon(value, block)}
                 >
                     {value}
                 </Button>
@@ -101,8 +102,8 @@ const FighterBlock = ({
                     key={`attack-${value}`}
                     color={isEnemy ? "neutral" : "error"}
                     variant="contained"
-                    onClick={() => setHit(value)}
-                    // disabled={isEnemy}
+                    onClick={() => setHitTo(value)}
+                    endIcon={getIcon(value, hitTo)}
                 >
                     {value}
                 </Button>

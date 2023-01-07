@@ -26,7 +26,7 @@ const darkTheme = createTheme({
 
 const App = () => {
     const [user, updateUser] = useState(null)
-    const [charactersData, updateCharactersData] = useState({})
+    const [charactersData, updateCharactersData] = useState(null)
     const [fighter, updateFighter] = useState(null)
 
     const userState = { user, updateUser }
