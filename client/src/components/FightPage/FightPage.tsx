@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { styled } from '@mui/material'
 import { faker } from '@faker-js/faker'
-
 import FighterContext, { Fighter } from '../../contexts/FighterContext'
 import { useNavigate } from 'react-router-dom'
 import { HOME } from '../../constants/routePaths'
@@ -13,6 +12,7 @@ import { HIT_OPTIONS } from '../../constants/fightConstants'
 import { Button, Box } from '@mui/material'
 import CharactersContext from '../../contexts/CharactersContext'
 import { characters } from '../../constants/characters'
+import CustomizedSnackbar from "../CustomizedSnackbar";
 
 const Wrapper = styled('div')({
     margin: 20,
@@ -47,6 +47,7 @@ const FightPage = () => {
     const navigate = useNavigate()
     const [oppositeFighter, setOppositeFighter] = useState<Fighter | null>(null)
     const [logs, setLogs] = useState<string[]>([])
+    const [showWinner, setShowWinner] = useState<string>('')
     const [block, setBlock] = useState<typeof HIT_OPTIONS[number] | null>(null)
     const [hitTo, setHitTo] = useState<typeof HIT_OPTIONS[number] | null>(null)
     const { fighter } = useContext(FighterContext)
@@ -71,6 +72,23 @@ const FightPage = () => {
             navigate(HOME)
         }
     }, [fighter])
+
+    useEffect(() => {
+        if(oppositeFighter) {
+            if (fighterLife <= 0) {
+                setShowWinner(oppositeFighter?.name)
+            } else if (oppositeFighter?.life_points <= 0) {
+                setShowWinner(fighter?.name)
+            }
+        }
+    }, [oppositeFighter, fighterLife])
+
+    useEffect(() => {
+        if (showWinner) {
+            setTimeout(() => navigate(HOME), 5000)
+        }
+    }, [showWinner])
+
     if (!fighter) {
         return null
     }
@@ -105,12 +123,11 @@ const FightPage = () => {
         }
     }
 
-    const getNewLifePoints = (fighterA: Fighter, damage: number) => {
-        const { life_points } = fighterA
-        const newLifePoints = life_points - damage
+    const getNewLifePoints = (name: string, life: number, damage: number) => {
+        const newLifePoints = life - damage
         return {
             newLifePoints: newLifePoints < 0 ? 0 : newLifePoints,
-            log: lifePointsLog(fighterA.name, damage, newLifePoints),
+            log: lifePointsLog(name, damage, newLifePoints),
         }
     }
 
@@ -142,7 +159,7 @@ const FightPage = () => {
         if (fighterDamage) {
             const { resultDamage: fighterResultDamage, log: fighterBlockDamageLog } = getDamageAfterBlock(fighter, oppositeFighter, fighterDamage)
             logsPool.push(fighterBlockDamageLog)
-            const { newLifePoints: oppositeFighterLife, log: oppositeFighterLifePointsLog } = getNewLifePoints(oppositeFighter, fighterResultDamage)
+            const { newLifePoints: oppositeFighterLife, log: oppositeFighterLifePointsLog } = getNewLifePoints(oppositeFighter.name, oppositeFighter.life_points, fighterResultDamage)
             logsPool.push(oppositeFighterLifePointsLog)
             setOppositeFighter({
                 ...oppositeFighter,
@@ -158,9 +175,9 @@ const FightPage = () => {
             )
             logsPool.push(oppositeFighterBlockDamageLog)
 
-            const { newLifePoints: fighterLifePoints, log: fighterLifePointsLog } = getNewLifePoints(fighter, oppositeFighterResultDamage)
+            const { newLifePoints: fighterLifePoints, log: fighterLifePointsLog } = getNewLifePoints(fighter.name, fighterLife, oppositeFighterResultDamage)
             logsPool.push(fighterLifePointsLog)
-
+            console.log({fighterLifePoints, })
             setFighterLife(fighterLifePoints)
         }
 
@@ -170,6 +187,11 @@ const FightPage = () => {
 
     return (
         <div>
+            <CustomizedSnackbar
+                message={`${showWinner} is WON!`}
+                type="success"
+                isOpen={!!showWinner}
+            />
             <Wrapper>
                 <FighterBlock fighter={fighter} fighterLife={fighterLife} setBlock={setBlock} setHitTo={setHitTo} hitTo={hitTo} block={block} />
                 <Box alignItems="center" justifyContent="center" display="flex" flexDirection="column">

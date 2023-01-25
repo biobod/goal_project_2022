@@ -32,23 +32,23 @@ const HeroCard = ({ personage }: HeroCardProps) => {
         if (!personage) {
             return { image: plusImage, alt: 'add hero' }
         }
-        const { name } = character || {}
-        return { image: characters[name].image, alt: name }
+        const { name } = character || { name: '' }
+        return { image: characters?.[name]?.image, alt: name }
     }
 
     const onAction = () => {
         if (personage) {
             updateFighter({
                 ...personage,
-                type: character.name,
-                physical_defence: character.physical_defence,
-                magical_defence: character.magical_defence,
-                life_points: character.life_points,
-                accuracy: character.accuracy,
-                evasion: character.evasion,
-                critical_chance: character.critical_chance,
-                hit_power: character.hit_power,
-                image: characters[character.name].image
+                type: character?.name,
+                physical_defence: character?.physical_defence,
+                magical_defence: character?.magical_defence,
+                life_points: character?.life_points,
+                accuracy: character?.accuracy,
+                evasion: character?.evasion,
+                critical_chance: character?.critical_chance,
+                hit_power: character?.hit_power,
+                image: characters?.[character?.name || 0]?.image
             })
             navigate(FIGHT)
         } else {
