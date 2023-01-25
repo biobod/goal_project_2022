@@ -1,12 +1,5 @@
 import React from 'react'
-import {
-    Button,
-    Card,
-    CardMedia,
-    LinearProgress,
-    styled,
-    Typography,
-} from '@mui/material'
+import { Button, Card, CardMedia, LinearProgress, styled, Typography } from '@mui/material'
 import { CheckCircle } from '@mui/icons-material'
 
 import { Fighter } from '../../contexts/FighterContext'
@@ -17,8 +10,9 @@ type FighterBlockProps = {
     isEnemy?: boolean | null
     hitTo?: string | null
     block?: string | null
-    setHitTo?: (v: string) => any
-    setBlock?: (v: string) => any
+    fighterLife: number
+    setHitTo?: (v: typeof HIT_OPTIONS[number]) => any
+    setBlock?: (v: typeof HIT_OPTIONS[number]) => any
 }
 
 const FighterBlockWrapper = styled('div')({
@@ -39,20 +33,10 @@ const BorderLinearProgress = styled(LinearProgress)({
     marginTop: 10,
 })
 
-const FighterBlock = ({
-    fighter,
-    setHitTo,
-    setBlock,
-    hitTo,
-    block,
-    isEnemy,
-}: FighterBlockProps) => {
-    const health = fighter?.life_points > 100 ? 100 : fighter?.life_points
+const FighterBlock = ({ fighter, fighterLife, setHitTo, setBlock, hitTo, block, isEnemy }: FighterBlockProps) => {
+    const health = fighterLife > 100 ? 100 : fighterLife
 
-    const getIcon = (
-        currentItem: string,
-        selectedValue: string | null | undefined
-    ) => {
+    const getIcon = (currentItem: string, selectedValue: string | null | undefined) => {
         if (isEnemy) {
             return null
         }
@@ -63,13 +47,9 @@ const FighterBlock = ({
             <Typography variant="h4" align="center">
                 {fighter?.type}: {fighter?.name}
             </Typography>
-            <BorderLinearProgress
-                value={health}
-                variant="determinate"
-                color="error"
-            />
+            <BorderLinearProgress value={health} variant="determinate" color="error" />
             <Typography marginBottom={'10px'} textAlign={'center'}>
-                Life points: {fighter.life_points}
+                Life points: {fighterLife}
             </Typography>
             <Card sx={{ maxWidth: 300 }}>
                 <CardMedia component="img" image={fighter?.image} />
@@ -121,9 +101,7 @@ const FighterBlock = ({
         </ActionSection>
     )
 
-    const blocksByOrder = isEnemy
-        ? [attackSection, blockSection, generalBlock]
-        : [generalBlock, blockSection, attackSection]
+    const blocksByOrder = isEnemy ? [attackSection, blockSection, generalBlock] : [generalBlock, blockSection, attackSection]
     return <FighterBlockWrapper>{blocksByOrder}</FighterBlockWrapper>
 }
 
