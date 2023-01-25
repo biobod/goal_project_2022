@@ -7,7 +7,7 @@ import {
     styled,
     Typography,
 } from '@mui/material'
-import { CheckCircle } from '@mui/icons-material';
+import { CheckCircle } from '@mui/icons-material'
 
 import { Fighter } from '../../contexts/FighterContext'
 import { HIT_OPTIONS } from '../../constants/fightConstants'
@@ -17,10 +17,9 @@ type FighterBlockProps = {
     isEnemy?: boolean | null
     hitTo?: string | null
     block?: string | null
-    setHitTo: (v: string) => void
-    setBlock: (v: string) => void
+    setHitTo?: (v: string) => any
+    setBlock?: (v: string) => any
 }
-
 
 const FighterBlockWrapper = styled('div')({
     display: 'flex',
@@ -42,7 +41,7 @@ const BorderLinearProgress = styled(LinearProgress)({
 
 const FighterBlock = ({
     fighter,
-                          setHitTo,
+    setHitTo,
     setBlock,
     hitTo,
     block,
@@ -50,8 +49,11 @@ const FighterBlock = ({
 }: FighterBlockProps) => {
     const health = fighter?.life_points > 100 ? 100 : fighter?.life_points
 
-    const getIcon = (currentItem: string, selectedValue: string | null | undefined) => {
-        if(isEnemy) {
+    const getIcon = (
+        currentItem: string,
+        selectedValue: string | null | undefined
+    ) => {
+        if (isEnemy) {
             return null
         }
         return currentItem === selectedValue ? <CheckCircle /> : null
@@ -82,9 +84,13 @@ const FighterBlock = ({
             {HIT_OPTIONS.map((value) => (
                 <Button
                     key={`block-${value}`}
-                    color={isEnemy ? "neutral" : "info"}
+                    color={isEnemy ? 'neutral' : 'info'}
                     variant="contained"
-                    onClick={() => setBlock(value)}
+                    onClick={() => {
+                        if (setBlock) {
+                            setBlock(value)
+                        }
+                    }}
                     startIcon={getIcon(value, block)}
                 >
                     {value}
@@ -100,9 +106,13 @@ const FighterBlock = ({
             {HIT_OPTIONS.map((value) => (
                 <Button
                     key={`attack-${value}`}
-                    color={isEnemy ? "neutral" : "error"}
+                    color={isEnemy ? 'neutral' : 'error'}
                     variant="contained"
-                    onClick={() => setHitTo(value)}
+                    onClick={() => {
+                        if (setHitTo) {
+                            setHitTo(value)
+                        }
+                    }}
                     endIcon={getIcon(value, hitTo)}
                 >
                     {value}

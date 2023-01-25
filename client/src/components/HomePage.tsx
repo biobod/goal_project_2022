@@ -17,7 +17,7 @@ const HomePage = () => {
 
     const renderCards = () => {
         const { statistic, personages } = user
-        const cardsCount = +statistic.level + 1
+        const cardsCount = statistic.level
         const cards = []
         for(let i = 0; i < cardsCount; i++){
             cards.push(<HeroCard key={i} personage={personages?.[i]} />)

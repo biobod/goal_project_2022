@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom'
 import UserContext, { User } from '../contexts/UserContext'
 import { HOME } from '../constants/routePaths'
 import { useLazyQuery } from '@apollo/client'
-import { LOGIN_USER } from '../queries';
+import { LOGIN_USER } from '../queries'
 
 type responseType = {
     loginUser: User
@@ -41,13 +41,15 @@ const Form = styled('form')({
             borderColor: '#bdbdbd',
         },
     },
+    '& input:-webkit-autofill': {
+        WebkitBoxShadow: '0 0 0 1000px white inset',
+        WebkitTextFillColor: '#000',
+    },
 
     '&.Mui-focused fieldset': {
         borderColor: '#bdbdbd',
     },
 })
-
-
 
 const Login = () => {
     const navigate = useNavigate()

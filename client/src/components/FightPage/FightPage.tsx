@@ -30,17 +30,17 @@ const getEnemyHitData = () => {
     return { hit, block }
 }
 
-const calculateMiss = (accuracy, enemyEvasion) => {
+const calculateMiss = (accuracy: number, enemyEvasion: number) => {
     const chance = accuracy - enemyEvasion
     return Math.random() * 100 > chance
 }
-const calculateCriticalHit = (criticalChance) => {
+const calculateCriticalHit = (criticalChance: number) => {
     return Math.random() * 100 < criticalChance
 }
+const protectLog = (name: string, bodyPart: string) => `${name} protect his ${bodyPart}!`
 const missLog = (name: string) => `${name} missed!`
 const criticalDamageLog = (name: string) => `${name} made a Critical HIT! `
-const blockDamageLog = (name: string, damageBlocked: number) =>
-    `${name} blocks ${damageBlocked} hit damage`
+const blockDamageLog = (name: string, damageBlocked: number) => `${name} blocks ${damageBlocked} hit damage`
 const lifePointsLog = (name: string, damage: number, lifePoins: number) =>
     `${name} get ${damage} damage. New life balance is ${lifePoins}`
 
@@ -48,22 +48,22 @@ const FightPage = () => {
     const navigate = useNavigate()
     const [oppositeFighter, setOppositeFighter] = useState<Fighter | null>(null)
     const [logs, setLogs] = useState<string[]>([])
-    const [block, setBlock] = useState(null)
-    const [hitTo, setHitTo] = useState(null)
-    const [enemyHitData, setEnemyHitData] = useState(getEnemyHitData())
+    const [block, setBlock] = useState<string | null>(null)
+    const [hitTo, setHitTo] = useState<string | null>(null)
     const { fighter, updateFighter } = useContext(FighterContext)
     const { charactersData } = useContext(CharactersContext)
 
     useEffect(() => {
-        const randomFighter = {
-            ...charactersData[getRandomIndex()],
+        if (charactersData) {
+            const randomFighter = {
+                ...charactersData[getRandomIndex()],
+            }
+            const { name: type } = randomFighter
+            randomFighter.type = type
+            randomFighter.name = faker.internet.userName()
+            randomFighter.image = characters[randomFighter.type].image
+            setOppositeFighter(randomFighter)
         }
-        const { name: type } = randomFighter
-        randomFighter.type = type
-        randomFighter.name = faker.internet.userName()
-        randomFighter.image = characters[randomFighter.type].image
-
-        setOppositeFighter(randomFighter)
     }, [])
 
     useEffect(() => {
@@ -76,13 +76,16 @@ const FightPage = () => {
     }
     // calculations
 
-    const getDamage = (fighterA, enemyFighter) => {
+    const getDamage = (fighterA: Fighter, enemyFighter: Fighter, blockDamage: boolean) => {
         let { hit_power: damage } = fighterA
         let log = ''
         const isMiss = calculateMiss(fighterA.accuracy, enemyFighter.evasion)
         if (isMiss) {
             log = missLog(fighterA.name)
             return { damage: 0, log }
+        }
+        if (blockDamage) {
+            damage = damage / 2
         }
         const isCriticalHit = calculateCriticalHit(fighterA.critical_chance)
         if (isCriticalHit) {
@@ -92,11 +95,9 @@ const FightPage = () => {
         return { damage, log }
     }
 
-    const getDamageAfterBlock = (fighterA, enemyFighter, damage) => {
+    const getDamageAfterBlock = (fighterA: Fighter, enemyFighter: Fighter, damage: number) => {
         const isMage = fighterA.type === 'Mage'
-        const defence = isMage
-            ? enemyFighter.magical_defence
-            : enemyFighter.physical_defence
+        const defence = isMage ? enemyFighter.magical_defence : enemyFighter.physical_defence
         const newDamage = damage - defence
         return {
             resultDamage: newDamage <= 0 ? 0 : newDamage,
@@ -104,7 +105,7 @@ const FightPage = () => {
         }
     }
 
-    const getNewLifePoints = (fighterA, damage) => {
+    const getNewLifePoints = (fighterA: Fighter, damage: number) => {
         const { life_points } = fighterA
         const newLifePoints = life_points - damage
         return {
@@ -114,78 +115,84 @@ const FightPage = () => {
     }
 
     const onHit = () => {
-        const logsPool = ['']
+        if (!oppositeFighter) {
+            return
+        }
+        const { hit: enemyHit, block: enemyBlock } = getEnemyHitData()
+
+        const logsPool = ['---------------------------------------------------']
+        const isFighterBlockedDamage = block === enemyHit
+        const isEnemyBlockedDamage = enemyBlock === hitTo
+
+        if (isFighterBlockedDamage) {
+            logsPool.push(protectLog(fighter.name, block))
+        }
+        if (isEnemyBlockedDamage) {
+            logsPool.push(protectLog(oppositeFighter.name, enemyBlock))
+        }
+
+        console.log({ isFighterBlockedDamage, isEnemyBlockedDamage, enemyHit, enemyBlock })
+
         const { damage: fighterDamage, log: fighterDamageLog } = getDamage(
             fighter,
-            oppositeFighter
+            oppositeFighter,
+            isEnemyBlockedDamage
         )
         logsPool.push(fighterDamageLog)
-        const { damage: oppositeFighterDamage, log: oppositeFighterDamageLog } =
-            getDamage(oppositeFighter, fighter)
+        const { damage: oppositeFighterDamage, log: oppositeFighterDamageLog } = getDamage(
+            oppositeFighter,
+            fighter,
+            isFighterBlockedDamage
+        )
         logsPool.push(oppositeFighterDamageLog)
 
-        const {
-            resultDamage: fighterResultDamage,
-            log: fighterBlockDamageLog,
-        } = getDamageAfterBlock(fighter, oppositeFighter, fighterDamage)
-        logsPool.push(fighterBlockDamageLog)
+        // means no MIS
+        if (fighterDamage) {
+            const { resultDamage: fighterResultDamage, log: fighterBlockDamageLog } = getDamageAfterBlock(
+                fighter,
+                oppositeFighter,
+                fighterDamage
+            )
+            logsPool.push(fighterBlockDamageLog)
+            const { newLifePoints: oppositeFighterLife, log: oppositeFighterLifePointsLog } = getNewLifePoints(
+                oppositeFighter,
+                fighterResultDamage
+            )
+            logsPool.push(oppositeFighterLifePointsLog)
+            setOppositeFighter({
+                ...oppositeFighter,
+                life_points: oppositeFighterLife,
+            })
+        }
+        if (oppositeFighterDamage) {
+            const { resultDamage: oppositeFighterResultDamage, log: oppositeFighterBlockDamageLog } =
+                getDamageAfterBlock(oppositeFighter, fighter, oppositeFighterDamage)
+            logsPool.push(oppositeFighterBlockDamageLog)
 
-        const {
-            resultDamage: oppositeFighterResultDamage,
-            log: oppositeFighterBlockDamageLog,
-        } = getDamageAfterBlock(oppositeFighter, fighter, oppositeFighterDamage)
-        logsPool.push(oppositeFighterBlockDamageLog)
+            const { newLifePoints: fighterLife, log: fighterLifePointsLog } = getNewLifePoints(
+                fighter,
+                oppositeFighterResultDamage
+            )
+            logsPool.push(fighterLifePointsLog)
 
-        const { newLifePoints: fighterLife, log: fighterLifePointsLog } =
-            getNewLifePoints(fighter, oppositeFighterResultDamage)
-        logsPool.push(fighterLifePointsLog)
+            updateFighter({ ...fighter, life_points: fighterLife })
+        }
+        const validLogsPool = logsPool.filter((v) => v)
 
-        const {
-            newLifePoints: oppositeFighterLife,
-            log: oppositeFighterLifePointsLog,
-        } = getNewLifePoints(oppositeFighter, fighterResultDamage)
-        logsPool.push(oppositeFighterLifePointsLog)
-
-        const validLogsPool = logsPool.filter((v) => v);
-
-        setLogs([...logs, ...validLogsPool, '  ---------------------------------------------'])
-
-        setOppositeFighter({
-            ...oppositeFighter,
-            life_points: oppositeFighterLife,
-        })
-        updateFighter({ ...fighter, life_points: fighterLife })
+        setLogs([...logs, ...validLogsPool])
     }
 
     return (
         <div>
             <Wrapper>
-                <FighterBlock
-                    fighter={fighter}
-                    setBlock={setBlock}
-                    setHitTo={setHitTo}
-                    hitTo={hitTo}
-                    block={block}
-                />
-                <Box
-                    alignItems="center"
-                    justifyContent="center"
-                    display="flex"
-                    flexDirection="column"
-                >
+                <FighterBlock fighter={fighter} setBlock={setBlock} setHitTo={setHitTo} hitTo={hitTo} block={block} />
+                <Box alignItems="center" justifyContent="center" display="flex" flexDirection="column">
                     <img width={100} height={100} src={fightIcon} />
-                    <Button
-                        color="secondary"
-                        variant="contained"
-                        disabled={!hitTo || !block}
-                        onClick={onHit}
-                    >
+                    <Button color="secondary" variant="contained" disabled={!hitTo || !block} onClick={onHit}>
                         HIT
                     </Button>
                 </Box>
-                {oppositeFighter && (
-                    <FighterBlock fighter={oppositeFighter} isEnemy />
-                )}
+                {oppositeFighter && <FighterBlock fighter={oppositeFighter} isEnemy />}
             </Wrapper>
             <div>
                 {logs.map((l) => (
