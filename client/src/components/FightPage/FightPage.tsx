@@ -8,40 +8,17 @@ import fightIcon from '../../../public/images/fight-icon.jpeg'
 import FighterBlock from './FighterBlock'
 import getRandomIndex from '../../utils/getRandomIndex'
 import { HIT_OPTIONS } from '../../constants/fightConstants'
-
+import { getNewLifePoints, protectLog, getDamageAfterBlock, getDamage, getEnemyHitData } from './utils'
 import { Button, Box } from '@mui/material'
 import CharactersContext from '../../contexts/CharactersContext'
 import { characters } from '../../constants/characters'
-import CustomizedSnackbar from "../CustomizedSnackbar";
+import CustomizedSnackbar from '../CustomizedSnackbar'
 
 const Wrapper = styled('div')({
     margin: 20,
     display: 'flex',
     justifyContent: 'space-between',
 })
-
-const getRandomAction = () => {
-    const index = getRandomIndex(3, 1)
-    return HIT_OPTIONS[index]
-}
-const getEnemyHitData = () => {
-    const block = getRandomAction()
-    const hit = getRandomAction()
-    return { hit, block }
-}
-
-const calculateMiss = (accuracy: number, enemyEvasion: number) => {
-    const chance = accuracy - enemyEvasion
-    return Math.random() * 100 > chance
-}
-const calculateCriticalHit = (criticalChance: number) => {
-    return Math.random() * 100 < criticalChance
-}
-const protectLog = (name: string, bodyPart: typeof HIT_OPTIONS[number]) => `${name} protect his ${bodyPart}!`
-const missLog = (name: string) => `${name} missed!`
-const criticalDamageLog = (name: string) => `${name} made a Critical HIT! `
-const blockDamageLog = (name: string, damageBlocked: number) => `${name} blocks ${damageBlocked} hit damage`
-const lifePointsLog = (name: string, damage: number, lifePoins: number) => `${name} get ${damage} damage. New life balance is ${lifePoins}`
 
 const FightPage = () => {
     const navigate = useNavigate()
@@ -74,61 +51,23 @@ const FightPage = () => {
     }, [fighter])
 
     useEffect(() => {
-        if(oppositeFighter) {
+        if (oppositeFighter && fighter) {
             if (fighterLife <= 0) {
                 setShowWinner(oppositeFighter?.name)
             } else if (oppositeFighter?.life_points <= 0) {
-                setShowWinner(fighter?.name)
+                setShowWinner(fighter.name)
             }
         }
     }, [oppositeFighter, fighterLife])
 
     useEffect(() => {
         if (showWinner) {
-            setTimeout(() => navigate(HOME), 5000)
+            setTimeout(() => navigate(HOME), 3000)
         }
     }, [showWinner])
 
     if (!fighter) {
         return null
-    }
-    // calculations
-
-    const getDamage = (fighterA: Fighter, enemyFighter: Fighter, blockDamage: boolean) => {
-        let { hit_power: damage } = fighterA
-        let log = ''
-        const isMiss = calculateMiss(fighterA.accuracy, enemyFighter.evasion)
-        if (isMiss) {
-            log = missLog(fighterA.name)
-            return { damage: 0, log }
-        }
-        if (blockDamage) {
-            damage = damage / 2
-        }
-        const isCriticalHit = calculateCriticalHit(fighterA.critical_chance)
-        if (isCriticalHit) {
-            damage = damage * 2
-            log = criticalDamageLog(fighterA.name)
-        }
-        return { damage, log }
-    }
-
-    const getDamageAfterBlock = (fighterA: Fighter, enemyFighter: Fighter, damage: number) => {
-        const isMage = fighterA.type === 'Mage'
-        const defence = isMage ? enemyFighter.magical_defence : enemyFighter.physical_defence
-        const newDamage = damage - defence
-        return {
-            resultDamage: newDamage <= 0 ? 0 : newDamage,
-            log: blockDamageLog(enemyFighter.name, defence),
-        }
-    }
-
-    const getNewLifePoints = (name: string, life: number, damage: number) => {
-        const newLifePoints = life - damage
-        return {
-            newLifePoints: newLifePoints < 0 ? 0 : newLifePoints,
-            log: lifePointsLog(name, damage, newLifePoints),
-        }
     }
 
     const onHit = () => {
@@ -148,8 +87,6 @@ const FightPage = () => {
             logsPool.push(protectLog(oppositeFighter.name, enemyBlock))
         }
 
-        console.log({ isFighterBlockedDamage, isEnemyBlockedDamage, enemyHit, enemyBlock })
-
         const { damage: fighterDamage, log: fighterDamageLog } = getDamage(fighter, oppositeFighter, isEnemyBlockedDamage)
         logsPool.push(fighterDamageLog)
         const { damage: oppositeFighterDamage, log: oppositeFighterDamageLog } = getDamage(oppositeFighter, fighter, isFighterBlockedDamage)
@@ -157,9 +94,17 @@ const FightPage = () => {
 
         // means no MIS. Calculate enemy result life
         if (fighterDamage) {
-            const { resultDamage: fighterResultDamage, log: fighterBlockDamageLog } = getDamageAfterBlock(fighter, oppositeFighter, fighterDamage)
+            const { resultDamage: fighterResultDamage, log: fighterBlockDamageLog } = getDamageAfterBlock(
+                fighter,
+                oppositeFighter,
+                fighterDamage
+            )
             logsPool.push(fighterBlockDamageLog)
-            const { newLifePoints: oppositeFighterLife, log: oppositeFighterLifePointsLog } = getNewLifePoints(oppositeFighter.name, oppositeFighter.life_points, fighterResultDamage)
+            const { newLifePoints: oppositeFighterLife, log: oppositeFighterLifePointsLog } = getNewLifePoints(
+                oppositeFighter.name,
+                oppositeFighter.life_points,
+                fighterResultDamage
+            )
             logsPool.push(oppositeFighterLifePointsLog)
             setOppositeFighter({
                 ...oppositeFighter,
@@ -175,9 +120,13 @@ const FightPage = () => {
             )
             logsPool.push(oppositeFighterBlockDamageLog)
 
-            const { newLifePoints: fighterLifePoints, log: fighterLifePointsLog } = getNewLifePoints(fighter.name, fighterLife, oppositeFighterResultDamage)
+            const { newLifePoints: fighterLifePoints, log: fighterLifePointsLog } = getNewLifePoints(
+                fighter.name,
+                fighterLife,
+                oppositeFighterResultDamage
+            )
             logsPool.push(fighterLifePointsLog)
-            console.log({fighterLifePoints, })
+            console.log({ fighterLifePoints })
             setFighterLife(fighterLifePoints)
         }
 
@@ -187,13 +136,16 @@ const FightPage = () => {
 
     return (
         <div>
-            <CustomizedSnackbar
-                message={`${showWinner} is WON!`}
-                type="success"
-                isOpen={!!showWinner}
-            />
+            <CustomizedSnackbar message={`${showWinner} is WON!`} type="success" isOpen={!!showWinner} />
             <Wrapper>
-                <FighterBlock fighter={fighter} fighterLife={fighterLife} setBlock={setBlock} setHitTo={setHitTo} hitTo={hitTo} block={block} />
+                <FighterBlock
+                    fighter={fighter}
+                    fighterLife={fighterLife}
+                    setBlock={setBlock}
+                    setHitTo={setHitTo}
+                    hitTo={hitTo}
+                    block={block}
+                />
                 <Box alignItems="center" justifyContent="center" display="flex" flexDirection="column">
                     <img width={100} height={100} src={fightIcon} />
                     <Button color="secondary" variant="contained" disabled={!hitTo || !block} onClick={onHit}>

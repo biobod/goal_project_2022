@@ -5,6 +5,12 @@ import { CheckCircle } from '@mui/icons-material'
 import { Fighter } from '../../contexts/FighterContext'
 import { HIT_OPTIONS } from '../../constants/fightConstants'
 
+declare module '@mui/material/Button' {
+    interface ButtonPropsColorOverrides {
+        neutral: true;
+    }
+}
+
 type FighterBlockProps = {
     fighter: Fighter
     isEnemy?: boolean | null

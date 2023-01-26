@@ -8,6 +8,17 @@ import UserContext from './contexts/UserContext'
 import CharactersContext from './contexts/CharactersContext'
 import FighterContext from './contexts/FighterContext'
 
+declare module '@mui/material/styles' {
+    interface CustomPalette {
+        neutral: {
+            main: string
+            contrastText: string
+        };
+    }
+    interface Palette extends CustomPalette {}
+    interface PaletteOptions extends CustomPalette {}
+}
+
 const darkTheme = createTheme({
     palette: {
         mode: 'dark',
