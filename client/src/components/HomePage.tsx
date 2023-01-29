@@ -24,7 +24,7 @@ const HomePage = () => {
         }
         return cards
     }
-
+    console.log({user, cards: renderCards()})
     return (
         <CardWrapper>
             {renderCards()}

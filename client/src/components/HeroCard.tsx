@@ -15,7 +15,7 @@ import FighterContext from '../contexts/FighterContext'
 import { characters } from '../constants/characters'
 
 type HeroCardProps = {
-    personage: Personage
+    personage?: Personage
 }
 
 const HeroCard = ({ personage }: HeroCardProps) => {
@@ -25,7 +25,7 @@ const HeroCard = ({ personage }: HeroCardProps) => {
     const navigate = useNavigate()
 
     const character = useMemo( () => (charactersData || []).find(
-        ({ id }) => id === personage.characterId
+        ({ id }) => id === personage?.characterId
     ), [personage, charactersData])
 
     const getImage = () => {

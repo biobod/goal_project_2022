@@ -33,13 +33,14 @@ const FightPage = () => {
 
     useEffect(() => {
         if (charactersData) {
-            const randomFighter = {
-                ...charactersData[getRandomIndex()],
+            const randomCharacter = charactersData[getRandomIndex()]
+            const randomFighter: Fighter = {
+                ...randomCharacter,
+                type: randomCharacter.name,
+                name: faker.internet.userName(),
+                image: characters[randomCharacter.name].image,
             }
-            const { name: type } = randomFighter
-            randomFighter.type = type
-            randomFighter.name = faker.internet.userName()
-            randomFighter.image = characters[randomFighter.type].image
+
             setOppositeFighter(randomFighter)
         }
     }, [])

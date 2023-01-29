@@ -68,3 +68,15 @@ export const GET_CHARACTERS = gql`
         }
     }
 `
+export const CREATE_PERSONAGE = gql`
+    mutation createPersonage($name: String!, $type: String!, $userId: String!) {
+        createPersonage(name: $name, type: $type, userId: $userId) {
+            id
+            name
+            battles
+            wins
+            defeats
+            characterId
+        }
+    }
+`

@@ -1,10 +1,5 @@
 import React, { useContext, useState } from 'react'
 import { useMutation, gql } from '@apollo/client'
-import assasin from '../../public/images/characters/assasin.png'
-import warrior from '../../public/images/characters/warrior.png'
-import archer from '../../public/images/characters/archer.png'
-import mage from '../../public/images/characters/mage.png'
-import defender from '../../public/images/characters/defender.png'
 import Container from '@mui/material/Container'
 
 import MuiCard from '@mui/material/Card'
@@ -17,8 +12,9 @@ import { styled } from '@mui/material/styles'
 import { useNavigate } from 'react-router-dom'
 import { HOME } from '../constants/routePaths'
 import TextField from '@mui/material/TextField'
-import UserContext from '../contexts/UserContext' // eslint-disable-line
+import UserContext, { Personage } from '../contexts/UserContext' // eslint-disable-line
 import { characters } from '../constants/characters'
+import { CREATE_PERSONAGE } from '../queries';
 
 const CardsWrapper = styled('div')({
     display: 'inline-grid',
@@ -43,18 +39,10 @@ const ConfirmWrapper = styled('div')({
     justifyContent: 'center',
 })
 
-const CREATE_PERSONAGE = gql`
-    mutation createPersonage($name: String!, $type: String!, $userId: String!) {
-        createPersonage(name: $name, type: $type, userId: $userId) {
-            id
-            name
-            battles
-            wins
-            defeats
-            characterId
-        }
-    }
-`
+type onCompletedArgs = {
+    createPersonage?: Personage
+}
+
 
 const PickHeroPage = () => {
     const { user, updateUser } = useContext(UserContext)
@@ -72,7 +60,7 @@ const PickHeroPage = () => {
         const { value } = e.target
         setName(value)
     }
-    const onCompleted = ({ createPersonage }) => {
+    const onCompleted = ({ createPersonage }: onCompletedArgs) => {
         updateUser({
             ...user,
             personages: [...user.personages, createPersonage],
