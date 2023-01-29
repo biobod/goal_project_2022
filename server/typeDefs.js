@@ -43,6 +43,7 @@ const typeDefs = `#graphql
     type Mutation {
         createUser(nickname: String!, email:String!, password:String!): User
         createPersonage(name: String!, type: String!, userId: String!): Personage
+        updateBattleData(userId: String! personageId: String!, wins: Int, defeats: Int, battles: Int, level: Int, current_points: Int): User
     }
 `
 

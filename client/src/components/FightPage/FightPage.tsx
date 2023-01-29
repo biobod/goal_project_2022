@@ -13,13 +13,18 @@ import { Button, Box } from '@mui/material'
 import CharactersContext from '../../contexts/CharactersContext'
 import { characters } from '../../constants/characters'
 import CustomizedSnackbar from '../CustomizedSnackbar'
+import { useMutation } from '@apollo/client'
+import { UPDATE_BATTLE_DATA } from '../../queries'
+import UserContext, { User } from '../../contexts/UserContext'
 
 const Wrapper = styled('div')({
     margin: 20,
     display: 'flex',
     justifyContent: 'space-between',
 })
-
+type responseType = {
+    updateBattleData: User
+}
 const FightPage = () => {
     const navigate = useNavigate()
     const [oppositeFighter, setOppositeFighter] = useState<Fighter | null>(null)
@@ -28,8 +33,16 @@ const FightPage = () => {
     const [block, setBlock] = useState<typeof HIT_OPTIONS[number] | null>(null)
     const [hitTo, setHitTo] = useState<typeof HIT_OPTIONS[number] | null>(null)
     const { fighter } = useContext(FighterContext)
+    const { user, updateUser } = useContext(UserContext)
     const { charactersData } = useContext(CharactersContext)
     const [fighterLife, setFighterLife] = useState<number>(fighter?.life_points || 0)
+
+    const onCompleted = ({ updateBattleData }: responseType) => {
+        updateUser({ ...updateBattleData })
+        setTimeout(() => navigate(HOME), 1500)
+    }
+
+    const [onUpdateBattleData] = useMutation(UPDATE_BATTLE_DATA, { onCompleted })
 
     useEffect(() => {
         if (charactersData) {
@@ -63,7 +76,23 @@ const FightPage = () => {
 
     useEffect(() => {
         if (showWinner) {
-            setTimeout(() => navigate(HOME), 3000)
+            // todo here will be updateBattleData
+            const youWin = showWinner === fighter?.name
+            const wins = youWin ? Number(fighter?.wins) + 1 : fighter?.wins
+            const defeats = youWin ? fighter?.defeats : Number(fighter?.defeats) + 1
+            const current_points = youWin ? Number(user?.statistic?.current_points) + 10 : user?.statistic?.current_points
+            const level = current_points >= 100 ? Number(user?.statistic?.level) + 1 : user?.statistic?.level
+            onUpdateBattleData({
+                variables: {
+                    userId: user?.id,
+                    personageId: fighter?.id,
+                    wins,
+                    defeats,
+                    battles: Number(fighter?.battles) + 1,
+                    level,
+                    current_points,
+                },
+            })
         }
     }, [showWinner])
 
